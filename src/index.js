@@ -34,7 +34,7 @@ function onInputChenge() {
       console.log(response);
       refs.countryList.innerHTML = '';
       refs.countryInfo.innerHTML = '';
-      // Интерфейс с помощъю библиотеки Notiflix
+      // !  інтерфейс біблоітеки Notiflix
       if (response.length > 10) {
         Notiflix.Notify.info(
           'Too many matches found. Please enter a more specific name.'
@@ -52,13 +52,13 @@ function onInputChenge() {
       }
     })
 
-    // Ошибку со статус кодом 404 - не найдено, с помощъю библиотеки Notiflix!
+    // !    Помилка статус кодом 404 - не знайденно, за допомогою бібліотеки Notiflix!
     .catch(() => {
       Notiflix.Notify.failure('Oops, there is no country with that name');
       return [];
     });
 }
-// Оформили флаг и название страни
+// !    Оформлення флагу і назва країни
 function renderCountryList(contries) {
   return contries
     .map(({ flags, name }) => {
@@ -72,7 +72,7 @@ function renderCountryList(contries) {
     .join('');
 }
 
-// Оформили список Фильтрация полей c информацией
+// !    Оформили список фільрації 
 
 function renderCountryInfo(contries) {
   return contries
