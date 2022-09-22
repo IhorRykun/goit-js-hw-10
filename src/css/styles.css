@@ -19,3 +19,7 @@ body {
   max-width: 320px;
   margin-bottom: 16px;
 }
+
+.img__item {
+    margin-left: 35px;
+}

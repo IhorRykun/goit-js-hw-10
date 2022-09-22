@@ -64,7 +64,7 @@ function renderCountryList(contries) {
     .map(({ flags, name }) => {
       return `
           <li class="country-list__item">
-              <img class="country-list__flag" src="${flags.svg}" alt="Flag of ${name.official}" width = 50px height = 50px>
+              <img class="country-list__flag" src="${flags.svg}" alt="Flag of ${name.official}" width = 100px height = 50px>
               <h2 class="country-list__name">${name.official}</h2>
           </li>
           `;
@@ -78,7 +78,7 @@ function renderCountryInfo(contries) {
   return contries
     .map(({ flags, name, capital, population, languages }) => {
       return `
-      <img width="50px" height="50px" src='${flags.svg}' 
+      <img class="img__item" width="100px" height="50px" src='${flags.svg}' 
       alt='${name.official} flag' />
         <ul class="country-info__list">
             <li class="country-info__item"><p><b>Name: </b>${
