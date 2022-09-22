@@ -1,69 +1,96 @@
 import './css/styles.css';
-import throttle from 'lodash.throttle';
 import { debounce } from 'lodash';
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import Notiflix from 'notiflix';
+
+
+//  ! Експорт  функції  запиту API
 import { fetchCountries } from './fetchCountries';
 
-
-// !    зробили силки на наші об’єкти
+// !    Дістаємо елементи   
 const refs = {
-  input: document.querySelector('#search-box'),
-  ul: document.querySelector('.country-list'),
-  div: document.querySelector('.country-info'),
+  inputForm: document.querySelector('#search-box'),
+  countryList: document.querySelector('.country-list'),
+  countryInfo: document.querySelector('.country-info'),
 };
+
 const DEBOUNCE_DELAY = 300;
+// !    Використовуємо  debounce
+refs.inputForm.addEventListener(
+  'input',
+  debounce(onInputChenge, DEBOUNCE_DELAY)
+);
 
-refs.input.addEventListener('input', debounce(onInputChenge, DEBOUNCE_DELAY));
+// !    Функція яка Синтизує строки методом trim()
+function onInputChenge() {
+  const name = refs.inputForm.value.trim();
+  if (name === '') {
+      return (refs.countryList.innerHTML = ''),
+          (refs.countryInfo.innerHTML = '');
+  }
 
-// ! Функція  пустього рядка 
-function onInputChenge(e) {
-    eraseHtml();
-    const name = e.target.value;
-    if (name === "") {
-        return;
-    }
-API.fetchCountries(name).then(renderResult).catch(rejectedResult);
-}
-
-
-function eraseHtml() {
-    refs.ul.innerHTML = "";
-    refs.div.innerHTML = "";
-}
-
-
-function renderResult(result) {
-    const resultLength = result.length;
-    if (result > 10) {
-        Notify.info(
+  // ! Функція логіки та функціоналу
+  fetchCountries(name)
+    .then(response => {
+      console.log(response);
+      refs.countryList.innerHTML = '';
+      refs.countryInfo.innerHTML = '';
+      // Интерфейс с помощъю библиотеки Notiflix
+      if (response.length > 10) {
+        Notiflix.Notify.info(
           'Too many matches found. Please enter a more specific name.'
         );
-        return;
-    }
-    if (resultLength >= 2 && resultLength <= 10) {
-        refs.div.insertAdjacentHTML('beforeend', infoCantry(result));
-    }
+      } else if (response.length < 10 && response.length >= 2) {
+        refs.countryList.insertAdjacentHTML(
+          'beforeend',
+          renderCountryList(response)
+        );
+      } else {
+        refs.countryInfo.insertAdjacentHTML(
+          'beforeend',
+          renderCountryInfo(response)
+        );
+      }
+    })
+
+    // Ошибку со статус кодом 404 - не найдено, с помощъю библиотеки Notiflix!
+    .catch(() => {
+      Notiflix.Notify.failure('Oops, there is no country with that name');
+      return [];
+    });
+}
+// Оформили флаг и название страни
+function renderCountryList(contries) {
+  return contries
+    .map(({ flags, name }) => {
+      return `
+          <li class="country-list__item">
+              <img class="country-list__flag" src="${flags.svg}" alt="Flag of ${name.official}" width = 50px height = 50px>
+              <h2 class="country-list__name">${name.official}</h2>
+          </li>
+          `;
+    })
+    .join('');
 }
 
-function nameCantry(result) {
+// Оформили список Фильтрация полей c информацией
 
-    return result.map(
-      obj =>
-        `<li><img src="${obj.flags.svg}" width="30" heihgt="20"> "${obj.name.official}"</img></li>`
-    );
-}
-
-function infoCantry(result) {
-return result.map(
-  obj => `<li><img src = "${obj.flags.svg}" width=30 height=20> ${
-    obj.name.official
-  }</li> 
-  <li>capital: ${obj.capital.join('')}</li>
-  <li>population: ${obj.population}</li>
-  <li>languages: ${Object.values(obj.languages).join('')}</li>`
-);
-}
-
-function rejectedResult() {
-  Notify.failure('Oops, there is no country with that name');
+function renderCountryInfo(contries) {
+  return contries
+    .map(({ flags, name, capital, population, languages }) => {
+      return `
+      <img width="50px" height="50px" src='${flags.svg}' 
+      alt='${name.official} flag' />
+        <ul class="country-info__list">
+            <li class="country-info__item"><p><b>Name: </b>${
+              name.official
+            }</p></li>
+            <li class="country-info__item"><p><b>Capital: </b>${capital}</p></li>
+            <li class="country-info__item"><p><b>Population: </b>${population}</p></li>
+            <li class="country-info__item"><p><b>Languages: </b>${Object.values(
+              languages
+            )}</p></li>
+        </ul>
+        `;
+    })
+    .join('');
 }
